@@ -118,9 +118,6 @@ vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
 
--- Telescope File Browser
-vim.keymap.set('n', '<leader>fb', ':Telescope file_browser<CR>', { desc = 'Open File Browser' })
-
 -- Enable break indent
 vim.opt.breakindent = true
 
@@ -259,11 +256,60 @@ require('lazy').setup({
     },
   },
 
-  { -- Telescope File Browser
-    'nvim-telescope/telescope-file-browser.nvim',
-    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
+  {
+    'akinsho/bufferline.nvim',
+    version = '*',
+    dependencies = 'nvim-tree/nvim-web-devicons',
     config = function()
-      require('telescope').load_extension 'file_browser'
+      require('bufferline').setup {
+        options = {
+          mode = 'buffers',
+          numbers = 'none',
+          close_command = 'bdelete! %d',
+          right_mouse_command = 'bdelete! %d',
+          left_mouse_command = 'buffer %d',
+          middle_mouse_command = nil,
+          indicator = {
+            icon = '▎',
+            style = 'icon',
+          },
+          buffer_close_icon = '',
+          modified_icon = '●',
+          close_icon = '',
+          left_trunc_marker = '',
+          right_trunc_marker = '',
+          max_name_length = 18,
+          max_prefix_length = 15,
+          tab_size = 18,
+          diagnostics = 'nvim_lsp',
+          diagnostics_update_in_insert = false,
+          diagnostics_indicator = function(count, level, diagnostics_dict, context)
+            return '(' .. count .. ')'
+          end,
+          offsets = { { filetype = 'NERDTree', text = 'File Explorer', text_align = 'left' } },
+          show_buffer_icons = true,
+          show_buffer_close_icons = true,
+          show_close_icon = true,
+          show_tab_indicators = true,
+          persist_buffer_sort = true,
+          separator_style = 'thin',
+          enforce_regular_tabs = true,
+          always_show_bufferline = true,
+        },
+      }
+    end,
+  },
+
+  {
+    'preservim/nerdtree',
+    lazy = false,
+    config = function()
+      -- NERDTree configuration
+      vim.cmd [[
+      autocmd StdinReadPre * let s:std_in=1
+      autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') | execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
+      autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+    ]]
     end,
   },
 
@@ -422,6 +468,30 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      -- Switch to specific buffers using Alt+number (up to 9 buffers)
+      vim.api.nvim_set_keymap('n', '<A-1>', ':BufferLineGoToBuffer 1<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-2>', ':BufferLineGoToBuffer 2<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-3>', ':BufferLineGoToBuffer 3<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-4>', ':BufferLineGoToBuffer 4<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-5>', ':BufferLineGoToBuffer 5<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-6>', ':BufferLineGoToBuffer 6<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-7>', ':BufferLineGoToBuffer 7<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-8>', ':BufferLineGoToBuffer 8<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-9>', ':BufferLineGoToBuffer 9<CR>', { noremap = true, silent = true })
+
+      -- Cycle through buffers with Alt + h and Alt + l
+      vim.api.nvim_set_keymap('n', '<A-l>', ':BufferLineCycleNext<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<A-h>', ':BufferLineCyclePrev<CR>', { noremap = true, silent = true })
+
+      -- Close the current buffer with Alt+w
+      vim.api.nvim_set_keymap('n', '<A-w>', ':bdelete!<CR>', { noremap = true, silent = true })
+
+      -- Toggle NERDTree with Ctrl+n
+      vim.api.nvim_set_keymap('n', '<C-n>', ':NERDTreeToggle<CR>', { noremap = true, silent = true })
+
+      -- Find the current file in NERDTree with Ctrl+f (when NERDTree is already open)
+      vim.api.nvim_set_keymap('n', '<C-f>', ':NERDTreeFind<CR>', { noremap = true, silent = true })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
