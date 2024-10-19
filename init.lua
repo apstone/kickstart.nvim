@@ -489,6 +489,7 @@ require('lazy').setup({
 
       -- Toggle NERDTree with Ctrl+n
       vim.api.nvim_set_keymap('n', '<C-n>', ':NERDTreeToggle<CR>', { noremap = true, silent = true })
+      vim.g.NERDTreeShowHidden = 1
 
       -- Find the current file in NERDTree with Ctrl+f (when NERDTree is already open)
       vim.api.nvim_set_keymap('n', '<C-f>', ':NERDTreeFind<CR>', { noremap = true, silent = true })
