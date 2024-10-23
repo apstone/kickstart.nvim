@@ -257,6 +257,11 @@ require('lazy').setup({
   },
 
   {
+    'mistweaverco/discord.nvim',
+    event = 'VeryLazy',
+  },
+
+  {
     'akinsho/bufferline.nvim',
     version = '*',
     dependencies = 'nvim-tree/nvim-web-devicons',
@@ -696,6 +701,7 @@ require('lazy').setup({
         cssls = {},
         html = {},
         rust_analyzer = {},
+        elixirls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -992,6 +998,8 @@ require('lazy').setup({
         'typescript',
         'javascript',
         'css',
+        'elixir',
+        'heex',
       },
       -- Autoinstall languages that are not installed
       auto_install = true,
