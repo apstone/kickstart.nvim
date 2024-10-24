@@ -293,7 +293,6 @@ require('lazy').setup({
           diagnostics_indicator = function(count, level, diagnostics_dict, context)
             return '(' .. count .. ')'
           end,
-          offsets = { { filetype = 'NERDTree', text = 'File Explorer', text_align = 'left' } },
           show_buffer_icons = true,
           show_buffer_close_icons = true,
           show_close_icon = true,
@@ -313,16 +312,8 @@ require('lazy').setup({
   },
 
   {
-    'preservim/nerdtree',
-    lazy = false,
-    config = function()
-      -- NERDTree configuration
-      vim.cmd [[
-      autocmd StdinReadPre * let s:std_in=1
-      autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') | execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
-      autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
-    ]]
-    end,
+    'nvim-telescope/telescope-file-browser.nvim',
+    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -457,9 +448,23 @@ require('lazy').setup({
         --   },
         -- },
         -- pickers = {}
+        defaults = {
+          file_ignore_patterns = {
+            'node_modules',
+            'build',
+            '.git',
+            'dist',
+            'deps',
+            '_build',
+            '.elixir_ls',
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
+          },
+          ['file_browser'] = {
+            hijack_netrw = true,
           },
         },
       }
@@ -467,6 +472,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'file_browser')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -499,12 +505,12 @@ require('lazy').setup({
       -- Close the current buffer with Alt+w
       vim.api.nvim_set_keymap('n', '<A-w>', ':bdelete!<CR>', { noremap = true, silent = true })
 
-      -- Toggle NERDTree with Ctrl+n
-      vim.api.nvim_set_keymap('n', '<C-n>', ':NERDTreeToggle<CR>', { noremap = true, silent = true })
-      vim.g.NERDTreeShowHidden = 1
+      -- Telescope Filebrowser
+      -- Toggle Telescope file browser with <space>fb
+      vim.keymap.set('n', '<space>fb', ':Telescope file_browser<CR>', { noremap = true, silent = true })
 
-      -- Find the current file in NERDTree with Ctrl+f (when NERDTree is already open)
-      vim.api.nvim_set_keymap('n', '<C-f>', ':NERDTreeFind<CR>', { noremap = true, silent = true })
+      -- Open file browser with the current buffer's path
+      vim.keymap.set('n', '<space>fp', ':Telescope file_browser path=%:p:h select_buffer=true<CR>', { noremap = true, silent = true })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
