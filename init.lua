@@ -312,6 +312,27 @@ require('lazy').setup({
   },
 
   {
+    'kdheepak/lazygit.nvim',
+    lazy = true,
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
+    },
+    -- optional for floating window border decoration
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
+  },
+
+  {
     'nvim-telescope/telescope-file-browser.nvim',
     dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
   },
@@ -504,6 +525,9 @@ require('lazy').setup({
 
       -- Close the current buffer with Alt+w
       vim.api.nvim_set_keymap('n', '<A-w>', ':bdelete!<CR>', { noremap = true, silent = true })
+
+      -- LazyGit Setup
+      vim.keymap.set('n', '<leader>gg', ':LazyGit<CR>', { noremap = true, silent = true })
 
       -- Telescope Filebrowser
       -- Toggle Telescope file browser with <space>fb
