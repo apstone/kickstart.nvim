@@ -165,8 +165,8 @@ vim.opt.scrolloff = 10
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { noremap = true, silent = true, desc = 'Show diagnostics in a floating window' })
+vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, { desc = 'Open [D]iagnostic [L]ist' })
+vim.keymap.set('n', '<leader>dd', vim.diagnostic.open_float, { desc = 'Show [D]iagnostic [D]etails' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -291,7 +291,7 @@ require('lazy').setup({
           tab_size = 18,
           diagnostics = 'nvim_lsp',
           diagnostics_update_in_insert = false,
-          diagnostics_indicator = function(count, level, diagnostics_dict, context)
+         diagnostics_indicator = function(count, level, diagnostics_dict, context)
             return '(' .. count .. ')'
           end,
           show_buffer_icons = true,
@@ -334,9 +334,50 @@ require('lazy').setup({
   },
 
   {
-    'nvim-telescope/telescope-file-browser.nvim',
-    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
+  "nvim-tree/nvim-tree.lua",
+  version = "*",
+  lazy = false,
+  dependencies = {
+    "nvim-tree/nvim-web-devicons",
   },
+  config = function()
+    -- disable netrw at the very start of your init.lua
+    vim.g.loaded_netrw = 1
+    vim.g.loaded_netrwPlugin = 1
+
+    require("nvim-tree").setup({
+      sort = {
+        sorter = "case_sensitive",
+      },
+      view = {
+        width = 30,
+      },
+      renderer = {
+        group_empty = true,
+      },
+      filters = {
+        dotfiles = false,
+      },
+      git = {
+        enable = true,
+        ignore = false,
+      },
+      actions = {
+        open_file = {
+          quit_on_open = false,
+          window_picker = {
+            enable = true,
+          },
+        },
+      },
+    })
+
+    -- Keymaps
+    vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { desc = 'Toggle file explorer', silent = true })
+    vim.keymap.set('n', '<leader>tf', ':NvimTreeFindFile<CR>', { desc = 'Find current file in tree', silent = true })
+  end,
+},
+
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -494,7 +535,6 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
-      pcall(require('telescope').load_extension, 'file_browser')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -530,12 +570,6 @@ require('lazy').setup({
       -- LazyGit Setup
       vim.keymap.set('n', '<leader>gg', ':LazyGit<CR>', { noremap = true, silent = true })
 
-      -- Telescope Filebrowser
-      -- Toggle Telescope file browser with <space>fb
-      vim.keymap.set('n', '<space>fb', ':Telescope file_browser<CR>', { noremap = true, silent = true })
-
-      -- Open file browser with the current buffer's path
-      vim.keymap.set('n', '<space>fp', ':Telescope file_browser path=%:p:h select_buffer=true<CR>', { noremap = true, silent = true })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
