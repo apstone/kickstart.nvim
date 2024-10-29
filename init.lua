@@ -265,45 +265,44 @@ require('lazy').setup({
   },
 
   {
-    'akinsho/bufferline.nvim',
-    version = '*',
-    dependencies = 'nvim-tree/nvim-web-devicons',
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
-      require('bufferline').setup {
-        options = {
-          mode = 'buffers',
-          numbers = 'none',
-          close_command = 'bdelete! %d',
-          right_mouse_command = 'bdelete! %d',
-          left_mouse_command = 'buffer %d',
-          middle_mouse_command = nil,
-          indicator = {
-            icon = '▎',
-            style = 'icon',
-          },
-          buffer_close_icon = '',
-          modified_icon = '●',
-          close_icon = '',
-          left_trunc_marker = '',
-          right_trunc_marker = '',
-          max_name_length = 18,
-          max_prefix_length = 15,
-          tab_size = 18,
-          diagnostics = 'nvim_lsp',
-          diagnostics_update_in_insert = false,
-         diagnostics_indicator = function(count, level, diagnostics_dict, context)
-            return '(' .. count .. ')'
-          end,
-          show_buffer_icons = true,
-          show_buffer_close_icons = true,
-          show_close_icon = true,
-          show_tab_indicators = true,
-          persist_buffer_sort = true,
-          separator_style = 'thin',
-          enforce_regular_tabs = true,
-          always_show_bufferline = true,
-        },
-      }
+      local harpoon = require 'harpoon'
+
+      -- REQUIRED
+      harpoon:setup()
+
+      -- Mark and show menu
+      vim.keymap.set('n', '<leader>a', function()
+        harpoon:list():append()
+      end, { desc = 'Add file to Harpoon' })
+      vim.keymap.set('n', '<leader>h', function()
+        harpoon.ui:toggle_quick_menu(harpoon:list())
+      end, { desc = 'Toggle Harpoon menu' })
+
+      -- Direct file navigation with leader + number
+      vim.keymap.set('n', '<leader>1', function()
+        harpoon:list():select(1)
+      end, { desc = 'Harpoon to file 1' })
+      vim.keymap.set('n', '<leader>2', function()
+        harpoon:list():select(2)
+      end, { desc = 'Harpoon to file 2' })
+      vim.keymap.set('n', '<leader>3', function()
+        harpoon:list():select(3)
+      end, { desc = 'Harpoon to file 3' })
+      vim.keymap.set('n', '<leader>4', function()
+        harpoon:list():select(4)
+      end, { desc = 'Harpoon to file 4' })
+
+      -- Quick list navigation with leader + vim movement keys
+      vim.keymap.set('n', '<leader>j', function()
+        harpoon:list():next()
+      end, { desc = 'Harpoon next file' })
+      vim.keymap.set('n', '<leader>k', function()
+        harpoon:list():prev()
+      end, { desc = 'Harpoon prev file' })
     end,
   },
 
@@ -334,50 +333,49 @@ require('lazy').setup({
   },
 
   {
-  "nvim-tree/nvim-tree.lua",
-  version = "*",
-  lazy = false,
-  dependencies = {
-    "nvim-tree/nvim-web-devicons",
-  },
-  config = function()
-    -- disable netrw at the very start of your init.lua
-    vim.g.loaded_netrw = 1
-    vim.g.loaded_netrwPlugin = 1
+    'nvim-tree/nvim-tree.lua',
+    version = '*',
+    lazy = false,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      -- disable netrw at the very start of your init.lua
+      vim.g.loaded_netrw = 1
+      vim.g.loaded_netrwPlugin = 1
 
-    require("nvim-tree").setup({
-      sort = {
-        sorter = "case_sensitive",
-      },
-      view = {
-        width = 30,
-      },
-      renderer = {
-        group_empty = true,
-      },
-      filters = {
-        dotfiles = false,
-      },
-      git = {
-        enable = true,
-        ignore = false,
-      },
-      actions = {
-        open_file = {
-          quit_on_open = false,
-          window_picker = {
-            enable = true,
+      require('nvim-tree').setup {
+        sort = {
+          sorter = 'case_sensitive',
+        },
+        view = {
+          width = 30,
+        },
+        renderer = {
+          group_empty = true,
+        },
+        filters = {
+          dotfiles = false,
+        },
+        git = {
+          enable = true,
+          ignore = false,
+        },
+        actions = {
+          open_file = {
+            quit_on_open = false,
+            window_picker = {
+              enable = true,
+            },
           },
         },
-      },
-    })
+      }
 
-    -- Keymaps
-    vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { desc = 'Toggle file explorer', silent = true })
-    vim.keymap.set('n', '<leader>tf', ':NvimTreeFindFile<CR>', { desc = 'Find current file in tree', silent = true })
-  end,
-},
-
+      -- Keymaps
+      vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { desc = 'Toggle file explorer', silent = true })
+      vim.keymap.set('n', '<leader>tf', ':NvimTreeFindFile<CR>', { desc = 'Find current file in tree', silent = true })
+    end,
+  },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -443,7 +441,6 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
-        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
   },
@@ -549,27 +546,13 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
-      -- Switch to specific buffers using Alt+number (up to 9 buffers)
-      vim.api.nvim_set_keymap('n', '<A-1>', ':BufferLineGoToBuffer 1<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-2>', ':BufferLineGoToBuffer 2<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-3>', ':BufferLineGoToBuffer 3<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-4>', ':BufferLineGoToBuffer 4<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-5>', ':BufferLineGoToBuffer 5<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-6>', ':BufferLineGoToBuffer 6<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-7>', ':BufferLineGoToBuffer 7<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-8>', ':BufferLineGoToBuffer 8<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-9>', ':BufferLineGoToBuffer 9<CR>', { noremap = true, silent = true })
-
-      -- Cycle through buffers with Alt + h and Alt + l
-      vim.api.nvim_set_keymap('n', '<A-l>', ':BufferLineCycleNext<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<A-h>', ':BufferLineCyclePrev<CR>', { noremap = true, silent = true })
-
       -- Close the current buffer with Alt+w
       vim.api.nvim_set_keymap('n', '<A-w>', ':bdelete!<CR>', { noremap = true, silent = true })
 
       -- LazyGit Setup
-      vim.keymap.set('n', '<leader>gg', ':LazyGit<CR>', { noremap = true, silent = true })
-
+      vim.keymap.set('n', '<leader>lg', ':LazyGit<CR>', { noremap = true, silent = true })
+      -- Go normal mode fast
+      vim.keymap.set('i', 'jk', '<Esc>', { noremap = true, silent = true, desc = 'Quick escape to normal mode' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
